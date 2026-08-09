@@ -1,34 +1,53 @@
 package com.syndica.backend.service;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.syndica.backend.domain.dto.UserForCreateDTO;
-import com.syndica.backend.domain.repositories.UserRepository;
+import com.syndica.backend.domain.models.Group;
 import com.syndica.backend.domain.models.User;
+import com.syndica.backend.domain.models.UserGroup;
+import com.syndica.backend.domain.repositories.UserGroupRepository;
+import com.syndica.backend.domain.repositories.UserRepository;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final UserGroupRepository userGroupRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(
         UserRepository userRepository,
-        PasswordEncoder passwordEncoder
+        PasswordEncoder passwordEncoder,
+        UserGroupRepository userGroupRepository
     ){
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userGroupRepository = userGroupRepository;
     }
 
-    @Transactional
-    public void saveUser(UserForCreateDTO userForCreateDTO){
+    public User saveUser(UserForCreateDTO userForCreateDTO){
         User user = User.builder()
             .username(userForCreateDTO.username())
             .passwordHash(passwordEncoder.encode(userForCreateDTO.password()))
             .cpf(userForCreateDTO.cpf())
             .build();
         
-        this.userRepository.save(user);
+        return this.userRepository.save(user);
+    }
+
+    public void addGroup(User user, Group group){
+        userGroupRepository.save(
+            UserGroup.builder()
+            .user(user)
+            .group(group)
+            .build()
+        );
+    }
+
+    public List<Group> listGroups(User user){
+        return userRepository.findGroupsByUserId(user.getId());
     }
 }

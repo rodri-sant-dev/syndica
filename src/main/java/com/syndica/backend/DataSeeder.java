@@ -5,8 +5,9 @@ import org.springframework.stereotype.Component;
 
 import com.syndica.backend.domain.dto.UserForCreateDTO;
 import com.syndica.backend.domain.models.Group;
-import com.syndica.backend.service.UserService;
+import com.syndica.backend.domain.models.User;
 import com.syndica.backend.domain.repositories.GroupRepository;
+import com.syndica.backend.service.UserService;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
@@ -24,30 +25,7 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (groupRepository.count() == 0) {
-            groupRepository.save(
-                Group.builder()
-                .name("admin")
-                .description("Adminstrador do sistema")
-                .build()
-            );
-            
-            groupRepository.save(
-                Group.builder()
-                .name("sindico")
-                .description( "Sindico do Condominio")
-                .build()
-            );
-
-            groupRepository.save(
-                Group.builder()
-                .name("morador")
-                .description( "Morador do Condominio")
-                .build()
-            );
-        }
-
-        userService.saveUser(
+        User user = userService.saveUser(
             UserForCreateDTO
             .builder()
             .username("root")
@@ -55,6 +33,39 @@ public class DataSeeder implements CommandLineRunner {
             .cpf("12345678")
             .build()
         );
+
+        userService.addGroup(
+            user,
+            groupRepository.save(
+                Group.builder()
+                .name("admin")
+                .description("Adminstrador do sistema")
+                .build()
+            )
+        );
+        
+        userService.addGroup(
+            user,
+            groupRepository.save(
+                Group.builder()
+                .name("Sindico")
+                .description("Sindico do condominio")
+                .build()
+            )
+        );
+        
+        userService.addGroup(
+            user,
+            groupRepository.save(
+                Group.builder()
+                .name("admin")
+                .description("Morador do condominio")
+                .build()
+            )
+        );
+        
+
+       
         
     }
 }

@@ -3,7 +3,6 @@ package com.syndica.backend.service;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,8 +24,10 @@ public class JwtService {
     private final SecretKey signingKey;
     private final Duration accessTokenExpiration;
     private final Duration refreshTokenExpiration;
+    private final UserService userService;
 
     public JwtService(
+        UserService userService,
         @Value("${jwt.secret}") String secret,
         @Value("${jwt.access-token-expiration}") Duration accessTokenExpiration,
         @Value("${jwt.refresh-token-expiration}") Duration refreshTokenExpiration
@@ -34,16 +35,17 @@ public class JwtService {
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
+        this.userService = userService;
     }
 
     public String generateAccessToken(User user) {
-        // List<String> roles = user.getGroups().stream()
-        //     .map(Group::getName)
-        //     .toList();
+        List<String> roles = userService.listGroups(user).stream()
+            .map(Group::getName)
+            .toList();
 
         return Jwts.builder()
             .subject(user.getId().toString())
-            .claim("roles", new ArrayList<String>())
+            .claim("roles", roles)
             .issuedAt(Date.from(Instant.now()))
             .expiration(Date.from(Instant.now().plus(accessTokenExpiration)))
             .signWith(signingKey)

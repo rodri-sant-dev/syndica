@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.syndica.backend.domain.dto.LoginDTO;
 import com.syndica.backend.domain.dto.TokenPair;
@@ -33,13 +34,16 @@ public class AuthService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public TokenPair login(User user) {
-        var accessToken = jwtService.generateAccessToken(user);
+        userRepository.revokeOutersRefreshTokens(user.getId(), Instant.now());
 
-        var jti = UUID.randomUUID().toString();
-        var refreshToken = jwtService.generateRefreshToken(user, jti);
+        String accessToken = jwtService.generateAccessToken(user);
 
-        var entity = RefreshToken.builder()
+        String jti = UUID.randomUUID().toString();
+        String refreshToken = jwtService.generateRefreshToken(user, jti);
+
+        RefreshToken entity = RefreshToken.builder()
             .jti(jti)
             .user(user)
             .expiresAt(Instant.now().plus(jwtService.getRefreshTokenExpiration()))
