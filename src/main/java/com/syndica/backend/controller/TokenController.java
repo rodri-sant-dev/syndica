@@ -13,6 +13,7 @@ import com.syndica.backend.domain.models.User;
 import com.syndica.backend.execptions.UserDoesNotExistExecption;
 import com.syndica.backend.service.AuthService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 
 
@@ -29,6 +30,7 @@ public class TokenController {
         this.authService = authService;
     }
 
+    @SecurityRequirements()
     @PostMapping("/login")
     public ResponseEntity<TokenPair> createToken(@Valid LoginDTO loginDTO){
         User user = authService.userIsValid(loginDTO).orElseThrow(UserDoesNotExistExecption::new);
@@ -39,6 +41,7 @@ public class TokenController {
         .body(tokenPair);
     }
 
+    @SecurityRequirements()
     @PostMapping("/refresh")
     public ResponseEntity<TokenPair> refreshToken(@Valid RefreshTokenRequestDTO refreshTokenRequestDTO){
         
