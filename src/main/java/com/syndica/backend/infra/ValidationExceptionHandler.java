@@ -8,12 +8,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.syndica.backend.execptions.InvalidTokenException;
 import com.syndica.backend.execptions.UserDoesNotExistExecption;
 
 @RestControllerAdvice
 public class ValidationExceptionHandler {
     @ExceptionHandler(UserDoesNotExistExecption.class)
-    public ResponseEntity<Map<String, String>> handleCredenciaisInvalidas(UserDoesNotExistExecption ex) {
+    public ResponseEntity<Map<String, String>> handleInvalidCredentials(UserDoesNotExistExecption ex) {
+        Map<String, String> erro = new HashMap<>();
+        erro.put("erro", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erro);
+    }
+    
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidToken(InvalidTokenException ex) {
         Map<String, String> erro = new HashMap<>();
         erro.put("erro", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erro);

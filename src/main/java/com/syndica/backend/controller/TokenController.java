@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.syndica.backend.domain.dto.LoginDTO;
+import com.syndica.backend.domain.dto.RefreshTokenRequestDTO;
 import com.syndica.backend.domain.dto.TokenPair;
 import com.syndica.backend.domain.models.User;
 import com.syndica.backend.execptions.UserDoesNotExistExecption;
@@ -29,12 +30,20 @@ public class TokenController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenPair> gerarToken(@Valid LoginDTO loginDTO){
+    public ResponseEntity<TokenPair> createToken(@Valid LoginDTO loginDTO){
         User user = authService.userIsValid(loginDTO).orElseThrow(UserDoesNotExistExecption::new);
         TokenPair tokenPair = authService.login(user);
 
         return ResponseEntity
         .status(HttpStatus.CREATED)
         .body(tokenPair);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenPair> refreshToken(@Valid RefreshTokenRequestDTO refreshTokenRequestDTO){
+        
+        return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(authService.refreshToken(refreshTokenRequestDTO));
     }
 }

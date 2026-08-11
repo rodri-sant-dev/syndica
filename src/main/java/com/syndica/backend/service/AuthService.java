@@ -9,11 +9,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.syndica.backend.domain.dto.LoginDTO;
+import com.syndica.backend.domain.dto.RefreshTokenRequestDTO;
 import com.syndica.backend.domain.dto.TokenPair;
 import com.syndica.backend.domain.models.RefreshToken;
 import com.syndica.backend.domain.models.User;
 import com.syndica.backend.domain.repositories.RefreshTokenRepository;
 import com.syndica.backend.domain.repositories.UserRepository;
+import com.syndica.backend.execptions.InvalidTokenException;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 
 @Service
 public class AuthService {
@@ -52,6 +57,43 @@ public class AuthService {
         refreshTokenRepository.save(entity);
 
         return new TokenPair(accessToken, refreshToken);
+    }
+
+    @Transactional
+    public TokenPair refreshToken(RefreshTokenRequestDTO refreshTokenRequestDTO){
+        Claims claims;
+        try {
+            claims = jwtService.extractClaims(refreshTokenRequestDTO.refreshToken());
+        } catch (JwtException e) {
+            throw new InvalidTokenException();
+        }
+
+        RefreshToken oldRefreshToken = refreshTokenRepository.
+        findByJtiAndRevokedAtIsNull(claims.getId())
+        .orElseThrow(
+            () -> new InvalidTokenException("Token is invalid")
+        );
+
+        User user = oldRefreshToken.getUser();
+        String jti = UUID.randomUUID().toString();
+
+        String refreshTokenString = jwtService.generateRefreshToken(user, jti);
+
+        RefreshToken refreshTokeEntity = RefreshToken.builder()
+        .jti(jti)
+        .user(user)
+        .expiresAt(Instant.now().plus(jwtService.getRefreshTokenExpiration()))
+        .build();
+
+        refreshTokeEntity = refreshTokenRepository.save(refreshTokeEntity);
+
+        oldRefreshToken.setRevokedAt(Instant.now());
+        oldRefreshToken.setReason("REFRESH_TOKEN");
+        oldRefreshToken.setReplacedBy(refreshTokeEntity);
+        
+        String accessToken = jwtService.generateAccessToken(user);
+
+        return new TokenPair(accessToken, refreshTokenString);
     }
 
     public Optional<User> userIsValid(LoginDTO loginDTO) {
