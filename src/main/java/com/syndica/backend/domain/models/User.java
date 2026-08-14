@@ -1,5 +1,6 @@
 package com.syndica.backend.domain.models;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -31,14 +32,29 @@ public class User {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
+
+    
+    @Column(nullable = false)
+    private String fullname;
 
     @Column(name="password_hash", nullable = false)
     private String passwordHash;
 
     @Column(length = 11, nullable = false, unique=true)
     private String cpf;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isActive = true;
+
+    @Column
+    @Builder.Default
+    private Instant createdAt = Instant.now();
+
+    @Column
+    private Instant lastLogin;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @Builder.Default

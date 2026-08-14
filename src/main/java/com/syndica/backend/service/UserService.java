@@ -1,16 +1,21 @@
 package com.syndica.backend.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.syndica.backend.domain.dto.UserForCreateDTO;
+import com.syndica.backend.domain.dto.UserResponseDTO;
+import com.syndica.backend.domain.mappers.UserMapper;
 import com.syndica.backend.domain.models.Group;
 import com.syndica.backend.domain.models.User;
 import com.syndica.backend.domain.models.UserGroup;
 import com.syndica.backend.domain.repositories.UserGroupRepository;
 import com.syndica.backend.domain.repositories.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -33,6 +38,7 @@ public class UserService {
             .username(userForCreateDTO.username())
             .passwordHash(passwordEncoder.encode(userForCreateDTO.password()))
             .cpf(userForCreateDTO.cpf())
+            .fullname(userForCreateDTO.fullname())
             .build();
         
         return this.userRepository.save(user);
@@ -47,7 +53,31 @@ public class UserService {
         );
     }
 
+    public UserResponseDTO getUser(UUID userId){
+        return UserMapper.toUserResponseDTO(
+            userRepository.getById(userId)
+        );
+    }
     public List<Group> listGroups(User user){
         return userRepository.findGroupsByUserId(user.getId());
+    }
+
+    public List<UserResponseDTO> listUsers(){
+        return userRepository.findAll()
+        .stream()
+        .map(UserMapper::toUserResponseDTO)
+        .toList();
+    }
+
+    @Transactional
+    public void inactiveUser(UUID userId){
+        User user = userRepository.getById(userId);
+        if (user.isActive()) user.setActive(false);
+    }
+
+    @Transactional
+    public void activeUser(UUID userId){
+        User user = userRepository.getById(userId);
+        if (!user.isActive()) user.setActive(true);
     }
 }

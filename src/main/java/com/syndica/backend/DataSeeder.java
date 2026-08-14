@@ -31,6 +31,7 @@ public class DataSeeder implements CommandLineRunner {
             .username("root")
             .password("root")
             .cpf("12345678")
+            .fullname("paulo braga")
             .build()
         );
 
@@ -52,20 +53,7 @@ public class DataSeeder implements CommandLineRunner {
                 .description("Sindico do condominio")
                 .build()
             )
-        );
-        
-        userService.addGroup(
-            user,
-            groupRepository.save(
-                Group.builder()
-                .name("admin")
-                .description("Morador do condominio")
-                .build()
-            )
-        );
-        
-
-       
+        );      
         
     }
 }

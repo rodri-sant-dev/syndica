@@ -55,6 +55,7 @@ public class AuthService {
             .build();
 
         refreshTokenRepository.save(entity);
+        user.setLastLogin(Instant.now());
 
         return new TokenPair(accessToken, refreshToken);
     }
@@ -103,6 +104,7 @@ public class AuthService {
                     loginDTO.password(),
                     user.getPasswordHash()
                 )
-            );
+            )
+            .filter(user -> user.isActive());
 }
 }

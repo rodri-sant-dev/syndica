@@ -1,0 +1,67 @@
+package com.syndica.backend.controller;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.syndica.backend.domain.dto.UserForCreateDTO;
+import com.syndica.backend.domain.dto.UserResponseDTO;
+import com.syndica.backend.domain.models.User;
+import com.syndica.backend.service.UserService;
+
+import jakarta.validation.Valid;
+
+
+@RestController
+@RequestMapping("/users")
+public class UsersController {
+    private final UserService userService;
+
+    public UsersController(UserService userService){
+        this.userService = userService;
+    }
+
+    @GetMapping("")
+    public List<UserResponseDTO> listUsers(){
+        return userService.listUsers();
+    }
+
+    @GetMapping("/{userId}")
+    public UserResponseDTO getUser(@PathVariable UUID userId) {
+        return userService.getUser(userId);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<Void> createUser(@Valid  @RequestBody UserForCreateDTO userForCreateDTO) {
+        User user = userService.saveUser(userForCreateDTO);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequestUri()
+        .path("/{userId}")
+        .buildAndExpand(user.getId())
+        .toUri();
+
+        return ResponseEntity.created(location).build();
+    }
+
+    @PostMapping("{id}/active")
+    public ResponseEntity<Map<String, String>> activeUser(@PathVariable UUID id) {
+        userService.activeUser(id);
+        return ResponseEntity.ok(Map.of("message", "User is activated"));
+    }
+
+    @PostMapping("{id}/inactive")
+    public ResponseEntity<Map<String, String>> inactiveUser(@PathVariable UUID id) {
+        userService.inactiveUser(id);
+        return ResponseEntity.ok(Map.of("message", "User is inactivated"));
+    }
+}
