@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.syndica.backend.execptions.BusinessRuleException;
 import com.syndica.backend.execptions.InvalidTokenException;
 import com.syndica.backend.execptions.UserDoesNotExistExecption;
 
@@ -70,10 +71,19 @@ public class ValidationExceptionHandler {
             .body(new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), Instant.now()));
     }
 
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ApiError> handleBusinessRuleException(BusinessRuleException ex){
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(new ApiError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), Instant.now()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Erro interno no servidor", Instant.now()));
     }
+
 }
