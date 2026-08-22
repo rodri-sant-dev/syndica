@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.syndica.backend.domain.dto.LoginDTO;
 import com.syndica.backend.domain.dto.RefreshTokenRequestDTO;
-import com.syndica.backend.domain.dto.TokenPair;
+import com.syndica.backend.domain.dto.TokenPairDTO;
 import com.syndica.backend.domain.models.RefreshToken;
 import com.syndica.backend.domain.models.User;
 import com.syndica.backend.domain.repositories.RefreshTokenRepository;
@@ -40,7 +40,7 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenPair login(User user) {
+    public TokenPairDTO login(User user) {
         userRepository.revokeOutersRefreshTokens(user.getId(), Instant.now());
 
         String accessToken = jwtService.generateAccessToken(user);
@@ -57,11 +57,11 @@ public class AuthService {
         refreshTokenRepository.save(entity);
         user.setLastLogin(Instant.now());
 
-        return new TokenPair(accessToken, refreshToken);
+        return new TokenPairDTO(accessToken, refreshToken);
     }
 
     @Transactional
-    public TokenPair refreshToken(RefreshTokenRequestDTO refreshTokenRequestDTO){
+    public TokenPairDTO refreshToken(RefreshTokenRequestDTO refreshTokenRequestDTO){
         Claims claims;
         try {
             claims = jwtService.extractClaims(refreshTokenRequestDTO.refreshToken());
@@ -94,7 +94,7 @@ public class AuthService {
         
         String accessToken = jwtService.generateAccessToken(user);
 
-        return new TokenPair(accessToken, refreshTokenString);
+        return new TokenPairDTO(accessToken, refreshTokenString);
     }
 
     public Optional<User> userIsValid(LoginDTO loginDTO) {

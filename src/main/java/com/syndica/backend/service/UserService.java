@@ -39,6 +39,7 @@ public class UserService {
             .passwordHash(passwordEncoder.encode(userForCreateDTO.password()))
             .cpf(userForCreateDTO.cpf())
             .fullname(userForCreateDTO.fullname())
+            .email("root@root.com")
             .build();
         
         return this.userRepository.save(user);

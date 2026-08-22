@@ -10,6 +10,7 @@ public record UserResponseDTO(
     UUID id,
     String username,
     String fullname,
+    String email,
     String cpf,
     boolean isActive,
     Instant createdAt,

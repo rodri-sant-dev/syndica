@@ -35,7 +35,6 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String username;
-
     
     @Column(nullable = false)
     private String fullname;
@@ -45,6 +44,10 @@ public class User {
 
     @Column(length = 11, nullable = false, unique=true)
     private String cpf;
+
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
+
 
     @Column(nullable = false)
     @Builder.Default

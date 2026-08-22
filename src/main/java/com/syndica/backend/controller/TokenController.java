@@ -3,12 +3,15 @@ package com.syndica.backend.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.syndica.backend.domain.dto.LoginDTO;
+import com.syndica.backend.domain.dto.LoginResponseDTO;
 import com.syndica.backend.domain.dto.RefreshTokenRequestDTO;
-import com.syndica.backend.domain.dto.TokenPair;
+import com.syndica.backend.domain.dto.TokenPairDTO;
+import com.syndica.backend.domain.mappers.UserMapper;
 import com.syndica.backend.domain.models.User;
 import com.syndica.backend.execptions.UserDoesNotExistExecption;
 import com.syndica.backend.service.AuthService;
@@ -32,18 +35,22 @@ public class TokenController {
 
     @SecurityRequirements()
     @PostMapping("/login")
-    public ResponseEntity<TokenPair> createToken(@Valid LoginDTO loginDTO){
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO){
         User user = authService.userIsValid(loginDTO).orElseThrow(UserDoesNotExistExecption::new);
-        TokenPair tokenPair = authService.login(user);
+        TokenPairDTO tokenPair = authService.login(user);
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO(
+           UserMapper.toUserResponseDTO(user),
+            tokenPair
+        ); 
 
         return ResponseEntity
         .status(HttpStatus.CREATED)
-        .body(tokenPair);
+        .body(loginResponseDTO);
     }
 
     @SecurityRequirements()
     @PostMapping("/refresh")
-    public ResponseEntity<TokenPair> refreshToken(@Valid RefreshTokenRequestDTO refreshTokenRequestDTO){
+    public ResponseEntity<TokenPairDTO> refreshToken(@Valid @RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO){
         
         return ResponseEntity
         .status(HttpStatus.CREATED)
