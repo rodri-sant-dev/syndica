@@ -35,11 +35,10 @@ public class UserService {
 
     public User saveUser(UserForCreateDTO userForCreateDTO){
         User user = User.builder()
-            .username(userForCreateDTO.username())
             .passwordHash(passwordEncoder.encode(userForCreateDTO.password()))
             .cpf(userForCreateDTO.cpf())
             .fullname(userForCreateDTO.fullname())
-            .email("root@root.com")
+            .email(userForCreateDTO.email())
             .build();
         
         return this.userRepository.save(user);
@@ -56,9 +55,10 @@ public class UserService {
 
     public UserResponseDTO getUser(UUID userId){
         return UserMapper.toUserResponseDTO(
-            userRepository.getById(userId)
+            userRepository.getReferenceById(userId)
         );
     }
+    
     public List<Group> listGroups(User user){
         return userRepository.findGroupsByUserId(user.getId());
     }
@@ -72,13 +72,13 @@ public class UserService {
 
     @Transactional
     public void inactiveUser(UUID userId){
-        User user = userRepository.getById(userId);
+        User user = userRepository.getReferenceById(userId);
         if (user.isActive()) user.setActive(false);
     }
 
     @Transactional
     public void activeUser(UUID userId){
-        User user = userRepository.getById(userId);
+        User user = userRepository.getReferenceById(userId);
         if (!user.isActive()) user.setActive(true);
     }
 }

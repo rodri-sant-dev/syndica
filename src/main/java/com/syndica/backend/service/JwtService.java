@@ -52,12 +52,14 @@ public class JwtService {
             .compact();
     }
 
-    public String generateRefreshToken(User user, String jti) {
+    public String generateRefreshToken(User user, String jti,  Boolean remenber) {
         return Jwts.builder()
             .subject(user.getId().toString())
             .id(jti)
             .issuedAt(Date.from(Instant.now()))
-            .expiration(Date.from(Instant.now().plus(refreshTokenExpiration)))
+            .expiration(
+                remenber ? null : Date.from(Instant.now().plus(refreshTokenExpiration))
+            )
             .signWith(signingKey)
             .compact();
     }
@@ -68,10 +70,6 @@ public class JwtService {
             .build()
             .parseSignedClaims(token)
             .getPayload();
-    }
-
-    public boolean isTokenExpired(String token) {
-        return extractClaims(token).getExpiration().before(Date.from(Instant.now()));
     }
 
     public Duration getRefreshTokenExpiration() {

@@ -1,6 +1,7 @@
 package com.syndica.backend.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,6 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("token/")
 public class TokenController {
-    
     private final AuthService authService;
 
     public TokenController(
@@ -37,7 +37,9 @@ public class TokenController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO){
         User user = authService.userIsValid(loginDTO).orElseThrow(UserDoesNotExistExecption::new);
-        TokenPairDTO tokenPair = authService.login(user);
+
+        TokenPairDTO tokenPair = authService.login(user, loginDTO.remember());
+        
         LoginResponseDTO loginResponseDTO = new LoginResponseDTO(
            UserMapper.toUserResponseDTO(user),
             tokenPair
@@ -51,9 +53,19 @@ public class TokenController {
     @SecurityRequirements()
     @PostMapping("/refresh")
     public ResponseEntity<TokenPairDTO> refreshToken(@Valid @RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO){
-        
+        TokenPairDTO tokenPair = authService.refreshToken(refreshTokenRequestDTO);
+       
         return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(authService.refreshToken(refreshTokenRequestDTO));
+            .status(HttpStatus.CREATED)
+            .body(tokenPair);
     }
+
+    
+    @SecurityRequirements()
+    @PostMapping("/logout")
+    public ResponseEntity<Void> blacklistToken(@Valid @RequestBody RefreshTokenRequestDTO refreshTokenRequestDTO){
+        authService.blacklistToken(refreshTokenRequestDTO);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
 }

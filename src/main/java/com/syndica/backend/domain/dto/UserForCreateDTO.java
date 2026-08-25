@@ -4,8 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record UserForCreateDTO (
-    String username,
-    String password,
     String fullname,
-    String cpf
+    String cpf,
+    String email,
+    String username,
+    String password
+    
 ){}

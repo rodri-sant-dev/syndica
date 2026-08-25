@@ -15,7 +15,7 @@ import com.syndica.backend.domain.models.User;
 
 
 public interface UserRepository extends JpaRepository<User, UUID>{
-    public Optional<User> getByUsername(String username);
+    public Optional<User> getByEmail(String email);
     
     @Query("SELECT ug.group FROM UserGroup ug WHERE ug.user.id = :userId")
     List<Group> findGroupsByUserId(@Param("userId") UUID userId);

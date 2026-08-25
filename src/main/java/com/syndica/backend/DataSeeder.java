@@ -31,46 +31,50 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        User user = userService.saveUser(
-            UserForCreateDTO
-            .builder()
-            .username("root")
-            .password("root")
-            .cpf("12345678")
-            .fullname("paulo braga")
-            .build()
-        );
+        try{
+            User user = userService.saveUser(
+                UserForCreateDTO
+                .builder()
+                .username("root")
+                .password("root")
+                .cpf("12345678")
+                .fullname("paulo braga")
+                .build()
+            );
 
-        userService.addGroup(
-            user,
-            groupRepository.save(
-                Group.builder()
-                .name("admin")
-                .description("Adminstrador do sistema")
-                .build()
-            )
-        );
-        
-        userService.addGroup(
-            user,
-            groupRepository.save(
-                Group.builder()
-                .name("Sindico")
-                .description("Sindico do condominio")
-                .build()
-            )
-        );     
-        
-        for(int j = 1; j <= 2; j++){
-            for(int k = 1; k <= 16; k++){
-                apartmentRepository.save(
-                    Apartment.builder()
-                        .number(k)
-                        .block(j)
-                        .floor((k % 3) + 1)
-                        .build()
-                );
+            userService.addGroup(
+                user,
+                groupRepository.save(
+                    Group.builder()
+                    .name("admin")
+                    .description("Adminstrador do sistema")
+                    .build()
+                )
+            );
+            
+            userService.addGroup(
+                user,
+                groupRepository.save(
+                    Group.builder()
+                    .name("Sindico")
+                    .description("Sindico do condominio")
+                    .build()
+                )
+            );     
+            
+            for(int j = 1; j <= 2; j++){
+                for(int k = 1; k <= 16; k++){
+                    apartmentRepository.save(
+                        Apartment.builder()
+                            .number(k)
+                            .block(j)
+                            .floor((k % 3) + 1)
+                            .build()
+                    );
+                }
             }
+        }catch(Exception  e){
+
         }
     }
 }

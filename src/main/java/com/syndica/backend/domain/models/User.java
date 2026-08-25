@@ -33,21 +33,17 @@ public class User {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
-    
     @Column(nullable = false)
     private String fullname;
+
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
 
     @Column(name="password_hash", nullable = false)
     private String passwordHash;
 
     @Column(length = 11, nullable = false, unique=true)
     private String cpf;
-
-    @Column(name = "email", unique = true, nullable = false)
-    private String email;
-
 
     @Column(nullable = false)
     @Builder.Default

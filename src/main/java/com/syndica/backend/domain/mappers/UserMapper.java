@@ -10,7 +10,6 @@ public class UserMapper {
     public static UserResponseDTO toUserResponseDTO(User user){
         return UserResponseDTO.builder()
             .id(user.getId())
-            .username(user.getUsername())
             .fullname(user.getFullname())
             .cpf(user.getCpf())
             .email(user.getEmail())
