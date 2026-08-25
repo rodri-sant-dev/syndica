@@ -19,7 +19,6 @@ import com.syndica.backend.execptions.InvalidTokenException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import jakarta.validation.Valid;
 
 @Service
 public class AuthService {
