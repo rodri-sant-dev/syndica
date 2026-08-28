@@ -8,8 +8,11 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
+import com.syndica.backend.beans.CpfEncryptor;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -41,10 +44,11 @@ public class User {
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(name="password_hash", nullable = false)
+    @Column(name="password_hash", length = 255)
     private String passwordHash;
 
-    @Column(length = 11, nullable = false, unique=true)
+    @Convert(converter = CpfEncryptor.class)
+    @Column(length = 255, nullable = false, unique=true)
     private String cpf;
     
     /* System Controls  */
