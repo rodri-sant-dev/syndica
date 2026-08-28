@@ -8,11 +8,13 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,7 +46,8 @@ public class User {
 
     @Column(length = 11, nullable = false, unique=true)
     private String cpf;
-
+    
+    /* System Controls  */
     @Column(nullable = false)
     @Builder.Default
     private boolean isActive = true;
@@ -57,11 +60,11 @@ public class User {
     @Column
     private Instant lastLogin;
 
+    /* System keys */
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @Builder.Default
     private Set<UserGroup> userGroups = new HashSet<>();
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    @Builder.Default
-    private Set<UserApartment> userApartments = new HashSet<>();
+    
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserDetails userDetails;
 }

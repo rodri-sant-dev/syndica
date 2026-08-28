@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.syndica.backend.execptions.BusinessRuleException;
 import com.syndica.backend.execptions.InvalidTokenException;
+import com.syndica.backend.execptions.NotFoundException;
 import com.syndica.backend.execptions.UserDoesNotExistExecption;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -78,6 +79,13 @@ public class ValidationExceptionHandler {
             .status(HttpStatus.UNAUTHORIZED)
             .body(new ApiError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), Instant.now()));
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(Exception ex) {
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), Instant.now()));
+        }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
