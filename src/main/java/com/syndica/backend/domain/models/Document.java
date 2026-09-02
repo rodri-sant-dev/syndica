@@ -26,11 +26,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Document implements Persistable<UUID> {
+
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
     @Transient
+    @Builder.Default
     private boolean newEntity = true;
 
     @Column(nullable=false)
@@ -51,6 +53,7 @@ public class Document implements Persistable<UUID> {
     @Column
     private Instant deletedAt;
 
+    /* System keys */
     @Override
     public UUID getId() {
         return id;
@@ -63,6 +66,7 @@ public class Document implements Persistable<UUID> {
 
     @PostPersist
     @PostLoad
+    @SuppressWarnings("unused")
     void markNotNew() {
         newEntity = false;
     }

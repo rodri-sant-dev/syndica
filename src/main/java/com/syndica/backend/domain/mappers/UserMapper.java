@@ -1,9 +1,7 @@
 package com.syndica.backend.domain.mappers;
 
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
+import com.syndica.backend.domain.dto.UserForCreateDTO;
 import com.syndica.backend.domain.dto.UserResponseDTO;
-import com.syndica.backend.domain.dto.UserToUserApartmentResponseDTO;
 import com.syndica.backend.domain.models.User;
 
 public class UserMapper {
@@ -19,15 +17,16 @@ public class UserMapper {
             .build();
     }
 
-    public static UserToUserApartmentResponseDTO toUserApartmentResponseDTO(User user){
-        return UserToUserApartmentResponseDTO.builder()
-            .fullname(user.getFullname())
-            .URI(
-                ServletUriComponentsBuilder.fromCurrentRequestUri()
-                    .path("/{userId}")
-                    .buildAndExpand(user.getId())
-                    .toUri()
-            )    
-            .build();
+    public static User fromUserForCreateDTOToUser(
+        UserForCreateDTO userForCreateDTO,
+        String passwordHash
+    ){
+        return User.builder()
+        .fullname(userForCreateDTO.fullname())
+        .email(userForCreateDTO.fullname())
+        .cpf(userForCreateDTO.cpf())
+        .passwordHash(passwordHash)
+        .build();
     }
+
 }

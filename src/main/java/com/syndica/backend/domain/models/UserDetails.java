@@ -1,5 +1,6 @@
 package com.syndica.backend.domain.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,5 +31,11 @@ public class UserDetails {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @Column(length=6)
+    private String themePreference;
+    
+    @OneToOne
+    @JoinColumn(name="user_avatar_image")
+    private Document avatarImage;
  
 }

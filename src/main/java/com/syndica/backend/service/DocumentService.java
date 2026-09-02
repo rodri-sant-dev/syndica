@@ -6,17 +6,21 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.tika.Tika;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-
+import com.syndica.backend.domain.dto.DocumentDownload;
 import com.syndica.backend.domain.models.Document;
 import com.syndica.backend.domain.repositories.DocumentRepository;
 import com.syndica.backend.execptions.NotFoundException;
 
 import jakarta.transaction.Transactional;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 @Service
 public class DocumentService {
@@ -85,10 +89,21 @@ public class DocumentService {
         );
     }
 
-    public record DocumentDownload(
-        ResponseInputStream<GetObjectResponse> content,
-        String contentType,
-        String originalFilename,
-        Long contentLength
-    ) {}
+    
+    public ResponseEntity<InputStreamResource> createDocumentResponse(
+        DocumentDownload document,
+        String disposition
+    ) {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .contentType(MediaType.parseMediaType(document.contentType()))
+            .contentLength(document.contentLength())
+            .header(
+                "Content-Disposition",
+                disposition + "; filename=\"" + document.originalFilename() + "\""
+            )
+            .body(new InputStreamResource(document.content()));
+    }
+    
+
 }
