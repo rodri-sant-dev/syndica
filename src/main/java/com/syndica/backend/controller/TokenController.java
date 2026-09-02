@@ -48,7 +48,8 @@ public class TokenController {
         @RequestPart(value = "perfilPhoto", required = false) MultipartFile file,
         @RequestPart("userForCreateDTO") @Valid UserForCreateDTO userForCreateDTO
     ) throws IOException {
-        System.out.println(file);
+        
+        System.out.println(userForCreateDTO);
 
         return ResponseEntity
         .status(HttpStatus.CREATED)
