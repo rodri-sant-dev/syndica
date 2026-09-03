@@ -10,12 +10,12 @@ import org.hibernate.annotations.UuidGenerator;
 
 import com.syndica.backend.beans.CpfEncryptor;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -37,6 +37,13 @@ public class User {
     @UuidGenerator
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
+    
+    @OneToOne
+    @JoinColumn(name="user_avatar_image")
+    private Document avatarImage;
+
+    @Column(length=6)
+    private String themePreference;
 
     @Column(nullable = false)
     private String fullname;
@@ -68,7 +75,4 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @Builder.Default
     private Set<UserGroup> userGroups = new HashSet<>();
-    
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private UserDetails userDetails;
 }

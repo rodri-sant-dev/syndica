@@ -11,12 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.syndica.backend.domain.dto.UserForCreateDTO;
 import com.syndica.backend.domain.dto.UserResponseDTO;
 import com.syndica.backend.domain.mappers.UserMapper;
-import com.syndica.backend.domain.models.Document;
 import com.syndica.backend.domain.models.Group;
 import com.syndica.backend.domain.models.User;
-import com.syndica.backend.domain.models.UserDetails;
 import com.syndica.backend.domain.models.UserGroup;
-import com.syndica.backend.domain.repositories.UserDetailsRepository;
 import com.syndica.backend.domain.repositories.UserGroupRepository;
 import com.syndica.backend.domain.repositories.UserRepository;
 
@@ -28,11 +25,9 @@ public class UserService {
     private final UserGroupRepository userGroupRepository;
     private final DocumentService documentService;
     private final PasswordEncoder passwordEncoder;
-    private final UserDetailsRepository userDetailsRepository;
 
     public UserService(
         UserRepository userRepository,
-        UserDetailsRepository userDetailsRepository,
         DocumentService documentService,
         PasswordEncoder passwordEncoder,
         UserGroupRepository userGroupRepository
@@ -40,7 +35,6 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userGroupRepository = userGroupRepository;
-        this.userDetailsRepository = userDetailsRepository;
         this.documentService = documentService;
     }
 
@@ -49,21 +43,8 @@ public class UserService {
         MultipartFile file,
         UserForCreateDTO userForCreateDTO
     ) throws IOException {
-        Document photoImageDocument = documentService.uploadDocument(file);
         
-        UserDetails userDetails = userDetailsRepository.save(
-            UserDetails.builder()
-            .avatarImage(photoImageDocument)
-            .themePreference(userForCreateDTO.theme())
-            .build()
-        );
         
-        userRepository.save(
-                UserMapper.fromUserForCreateDTOToUser(
-                    userForCreateDTO,
-                    passwordEncoder.encode(userForCreateDTO.password())
-            )
-        );
     }
 
     public void addGroup(User user, Group group){

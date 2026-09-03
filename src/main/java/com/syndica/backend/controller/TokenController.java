@@ -41,15 +41,15 @@ public class TokenController {
         this.authService = authService;
         this.userService = userService;
     }
-
     
     @PostMapping(value = "/create-user", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, String>> createBaseUser(
         @RequestPart(value = "perfilPhoto", required = false) MultipartFile file,
         @RequestPart("userForCreateDTO") @Valid UserForCreateDTO userForCreateDTO
     ) throws IOException {
-        
+
         System.out.println(userForCreateDTO);
+        // userService.saveUser(file, userForCreateDTO);
 
         return ResponseEntity
         .status(HttpStatus.CREATED)
@@ -57,6 +57,7 @@ public class TokenController {
             "mensagem", "Usuário criado com sucesso"
         ));
     }
+
     @SecurityRequirements()
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO){

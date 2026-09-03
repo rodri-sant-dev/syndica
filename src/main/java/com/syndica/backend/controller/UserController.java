@@ -31,34 +31,34 @@ public class UserController {
         this.documentService = documentService;
     }
 
-    @SecurityRequirements()
-    @GetMapping(value="/avatar-image")
-    public ResponseEntity<InputStreamResource> getAvatarImage(
-        @RequestParam UUID uuid,
-        @AuthenticationPrincipal User user
-    ){
-        DocumentDownload document = documentService.getDocument(
-            user.getUserDetails().getAvatarImage().getId()
-        );
+    // @SecurityRequirements()
+    // @GetMapping(value="/avatar-image")
+    // public ResponseEntity<InputStreamResource> getAvatarImage(
+    //     @RequestParam UUID uuid,
+    //     @AuthenticationPrincipal User user
+    // ){
+    //     DocumentDownload document = documentService.getDocument(
+    //         user.getAvatarImage().getId()
+    //     );
 
-        return documentService.createDocumentResponse(document, "inline");
-    }
+    //     return documentService.createDocumentResponse(document, "inline");
+    // }
 
-    @SecurityRequirements()
-    @PostMapping(value="/avatar-image", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> uploadDocument(@RequestPart("file") MultipartFile file) throws IOException{ 
-        documentService.uploadDocument(file);
+    // @SecurityRequirements()
+    // @PostMapping(value="/avatar-image", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    // public ResponseEntity<Void> uploadDocument(@RequestPart("file") MultipartFile file) throws IOException{ 
+    //     documentService.uploadDocument(file);
 
-        return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .build();
-    }
+    //     return ResponseEntity
+    //     .status(HttpStatus.CREATED)
+    //     .build();
+    // }
 
-    @SecurityRequirements()
-    @GetMapping(value="/avatar-image/download")
-    public ResponseEntity<InputStreamResource> downloadAvatarImage(@RequestParam UUID uuid){
-        DocumentDownload document = documentService.getDocument(uuid);
-        return documentService.createDocumentResponse(document, "attachment");
-    }
+    // @SecurityRequirements()
+    // @GetMapping(value="/avatar-image/download")
+    // public ResponseEntity<InputStreamResource> downloadAvatarImage(@RequestParam UUID uuid){
+    //     DocumentDownload document = documentService.getDocument(uuid);
+    //     return documentService.createDocumentResponse(document, "attachment");
+    // }
     
 }

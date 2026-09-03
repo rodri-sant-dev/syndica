@@ -1,41 +1,44 @@
 package com.syndica.backend.domain.models;
 
+import java.util.Map;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "user_details")
-@Getter
-@Setter
 @Builder
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDetails {
-
+public class UserOutbox {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name="user_id")
     private User user;
 
-    @Column(length=6)
-    private String themePreference;
+    @Column
+    private String eventType;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> payload;
     
-    @OneToOne
-    @JoinColumn(name="user_avatar_image")
-    private Document avatarImage;
- 
+    @Column
+    private String status;
 }

@@ -5,6 +5,10 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
+import jakarta.transaction.Transactional;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+
 import org.apache.tika.Tika;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -18,9 +22,6 @@ import com.syndica.backend.domain.models.Document;
 import com.syndica.backend.domain.repositories.DocumentRepository;
 import com.syndica.backend.execptions.NotFoundException;
 
-import jakarta.transaction.Transactional;
-import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 @Service
 public class DocumentService {
@@ -32,16 +33,16 @@ public class DocumentService {
     );
 
     private final DocumentRepository documentRepository;
-    private final DocumentStorageService documentStorageService;
+    private final DocumentLocalService documentLocalService;
     private final Tika tika;
 
     public DocumentService(
         DocumentRepository documentRepository,
-        DocumentStorageService documentStorageService,
+        DocumentLocalService documentLocalService,
         Tika tika
     ){
         this.documentRepository = documentRepository;
-        this.documentStorageService = documentStorageService;
+        this.documentLocalService = documentLocalService;
         this.tika = tika;
     }
 
@@ -51,14 +52,9 @@ public class DocumentService {
         String extension = ALLOWED_FILE_TYPES.get(contentType);
 
         UUID key = UUID.randomUUID();
-        String bucketKey = key + extension;
+        String filename = key + extension;
 
-        this.documentStorageService.upload(
-            bucketKey,
-            file.getInputStream(),
-            file.getSize(),
-            contentType
-        );
+        this.documentLocalService.upload(filename, file);
 
         return documentRepository.save(
             Document.builder()
@@ -66,28 +62,28 @@ public class DocumentService {
                 .originalFilename(file.getOriginalFilename())
                 .size(file.getSize())
                 .contentType(contentType)
-                .bucketKey(bucketKey)
+                .bucketKey(filename)
                 .createdAt(Instant.now())
                 .build()
         );
     }
 
-    @Transactional
-    public DocumentDownload getDocument(UUID uuid){
-        Document document = documentRepository
-            .findById(uuid)
-            .orElseThrow(NotFoundException::new);
+    // @Transactional
+    // public DocumentDownload getDocument(UUID uuid){
+    //     Document document = documentRepository
+    //         .findById(uuid)
+    //         .orElseThrow(NotFoundException::new);
 
-        ResponseInputStream<GetObjectResponse> content =
-            documentStorageService.getObject(document.getBucketKey());
+    //     ResponseInputStream<GetObjectResponse> content =
+    //         documentStorageService.getObject(document.getBucketKey());
 
-        return new DocumentDownload(
-            content,
-            document.getContentType(),
-            document.getOriginalFilename(),
-            content.response().contentLength()
-        );
-    }
+    //     return new DocumentDownload(
+    //         content,
+    //         document.getContentType(),
+    //         document.getOriginalFilename(),
+    //         content.response().contentLength()
+    //     );
+    // }
 
     
     public ResponseEntity<InputStreamResource> createDocumentResponse(
