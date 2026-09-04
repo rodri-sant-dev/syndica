@@ -15,9 +15,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 @Configuration
 public class S3Config {
 
-    @Value("${storage.endpoint}")
-    private String endpoint;
-
     @Value("${storage.region}")
     private String region;
 
@@ -30,7 +27,6 @@ public class S3Config {
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
-            .endpointOverride(URI.create(endpoint))
             .region(Region.of(region))
             .credentialsProvider(StaticCredentialsProvider.create(
                 AwsBasicCredentials.create(accessKey, secretKey)))

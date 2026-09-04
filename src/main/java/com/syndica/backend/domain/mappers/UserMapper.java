@@ -23,7 +23,7 @@ public class UserMapper {
     ){
         return User.builder()
         .fullname(userForCreateDTO.fullname())
-        .email(userForCreateDTO.fullname())
+        .email(userForCreateDTO.email())
         .cpf(userForCreateDTO.cpf())
         .passwordHash(passwordHash)
         .build();

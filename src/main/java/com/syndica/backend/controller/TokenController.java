@@ -1,23 +1,16 @@
 package com.syndica.backend.controller;
 
-import java.io.IOException;
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.syndica.backend.domain.dto.LoginDTO;
 import com.syndica.backend.domain.dto.LoginResponseDTO;
 import com.syndica.backend.domain.dto.RefreshTokenRequestDTO;
 import com.syndica.backend.domain.dto.TokenPairDTO;
-import com.syndica.backend.domain.dto.UserForCreateDTO;
 import com.syndica.backend.domain.mappers.UserMapper;
 import com.syndica.backend.domain.models.User;
 import com.syndica.backend.execptions.UserDoesNotExistExecption;
@@ -32,29 +25,12 @@ import jakarta.validation.Valid;
 @RequestMapping("token/")
 public class TokenController {
     private final AuthService authService;
-    private final UserService userService;
 
     public TokenController(
         AuthService authService,
         UserService userService
     ){
         this.authService = authService;
-        this.userService = userService;
-    }
-    
-    @PostMapping(value = "/create-user", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String, String>> createBaseUser(
-        @RequestPart(value = "perfilPhoto", required = false) MultipartFile file,
-        @RequestPart("userForCreateDTO") @Valid UserForCreateDTO userForCreateDTO
-    ) throws IOException {
-
-        userService.saveUser(file, userForCreateDTO);
-
-        return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(Map.of(
-            "mensagem", "Usuário criado com sucesso"
-        ));
     }
 
     @SecurityRequirements()

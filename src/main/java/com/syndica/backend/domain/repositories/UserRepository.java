@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, UUID>{
         WHERE rt.user.id = :userId AND rt.revokedAt IS NULL
         """)
     void revokeOutersRefreshTokens(@Param("userId") UUID userId, @Param("revokedAt") Instant revokedAt);
+
+    Boolean existsByEmail(String email);
 }

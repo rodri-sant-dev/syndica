@@ -46,6 +46,23 @@ public class UserService {
         this.userOutboxRepository = userOutboxRepository;
     }
 
+
+    @Transactional
+    public void saveUser(
+        UserForCreateDTO userForCreateDTO
+    ) throws IOException {
+
+        userRepository.save(
+            UserMapper.fromUserForCreateDTOToUser(
+                userForCreateDTO,
+                passwordEncoder.encode(
+                    userForCreateDTO.password()
+                )
+            )
+        );   
+             
+    }
+
     @Transactional
     public void saveUser(
         MultipartFile file,
