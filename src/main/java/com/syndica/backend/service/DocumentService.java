@@ -5,12 +5,9 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
-import jakarta.transaction.Transactional;
-import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-
 import org.apache.tika.Tika;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.syndica.backend.domain.dto.DocumentDownload;
 import com.syndica.backend.domain.models.Document;
 import com.syndica.backend.domain.repositories.DocumentRepository;
-import com.syndica.backend.execptions.NotFoundException;
+
+import jakarta.transaction.Transactional;
 
 
 @Service
@@ -34,20 +32,23 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final DocumentLocalService documentLocalService;
+    private final DocumentStorageService documentStorageService;
     private final Tika tika;
 
     public DocumentService(
         DocumentRepository documentRepository,
         DocumentLocalService documentLocalService,
+        DocumentStorageService documentStorageService,
         Tika tika
     ){
         this.documentRepository = documentRepository;
         this.documentLocalService = documentLocalService;
+        this.documentStorageService = documentStorageService;
         this.tika = tika;
     }
 
     @Transactional
-    public Document uploadDocument(MultipartFile file) throws IOException {
+    public Document uploadLocalDocument(MultipartFile file) throws IOException {
         String contentType = tika.detect(file.getInputStream());
         String extension = ALLOWED_FILE_TYPES.get(contentType);
 
@@ -66,6 +67,22 @@ public class DocumentService {
                 .createdAt(Instant.now())
                 .build()
         );
+    }
+
+    @Transactional 
+    public void uploadStorageDocumentAndDeleteLocal(Document document) throws IOException {
+        Resource documentFile = documentLocalService.load(document.getBucketKey());
+
+        documentStorageService.upload(
+            document.getBucketKey(),
+            documentFile.getInputStream(),
+            document.getSize(),
+            document.getContentType()
+        );
+
+        documentLocalService.delete(document.getBucketKey());
+
+
     }
 
     // @Transactional

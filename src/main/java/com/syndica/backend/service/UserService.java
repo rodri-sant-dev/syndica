@@ -2,6 +2,7 @@ package com.syndica.backend.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,24 +12,30 @@ import org.springframework.web.multipart.MultipartFile;
 import com.syndica.backend.domain.dto.UserForCreateDTO;
 import com.syndica.backend.domain.dto.UserResponseDTO;
 import com.syndica.backend.domain.mappers.UserMapper;
+import com.syndica.backend.domain.models.Document;
 import com.syndica.backend.domain.models.Group;
 import com.syndica.backend.domain.models.User;
 import com.syndica.backend.domain.models.UserGroup;
+import com.syndica.backend.domain.models.UserOutbox;
 import com.syndica.backend.domain.repositories.UserGroupRepository;
+import com.syndica.backend.domain.repositories.UserOutboxRepository;
 import com.syndica.backend.domain.repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
+
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final UserGroupRepository userGroupRepository;
+    private final UserOutboxRepository userOutboxRepository;
     private final DocumentService documentService;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(
         UserRepository userRepository,
         DocumentService documentService,
+        UserOutboxRepository userOutboxRepository,
         PasswordEncoder passwordEncoder,
         UserGroupRepository userGroupRepository
     ){
@@ -36,6 +43,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.userGroupRepository = userGroupRepository;
         this.documentService = documentService;
+        this.userOutboxRepository = userOutboxRepository;
     }
 
     @Transactional
@@ -43,7 +51,29 @@ public class UserService {
         MultipartFile file,
         UserForCreateDTO userForCreateDTO
     ) throws IOException {
-        
+
+        Document document = documentService.uploadLocalDocument(file);
+
+        User user = userRepository.save(
+            UserMapper.fromUserForCreateDTOToUser(
+                userForCreateDTO,
+                passwordEncoder.encode(
+                    userForCreateDTO.password()
+                )
+            )
+        );
+
+        userOutboxRepository.save(
+            UserOutbox
+            .builder()
+            .user(user)
+            .eventType("CREATE_USER")
+            .payload(Map.of(
+                "id", document.getId().toString()
+            ))
+            .status("PENDING")
+            .build()
+        );
         
     }
 

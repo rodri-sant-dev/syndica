@@ -48,8 +48,7 @@ public class TokenController {
         @RequestPart("userForCreateDTO") @Valid UserForCreateDTO userForCreateDTO
     ) throws IOException {
 
-        System.out.println(userForCreateDTO);
-        // userService.saveUser(file, userForCreateDTO);
+        userService.saveUser(file, userForCreateDTO);
 
         return ResponseEntity
         .status(HttpStatus.CREATED)
