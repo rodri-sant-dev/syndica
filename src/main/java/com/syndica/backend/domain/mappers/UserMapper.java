@@ -9,11 +9,9 @@ public class UserMapper {
         return UserResponseDTO.builder()
             .id(user.getId())
             .fullname(user.getFullname())
-            .cpf(user.getCpf())
             .email(user.getEmail())
-            .isActive(user.isActive())
-            .createdAt(user.getCreatedAt())
-            .lastLogin(user.getLastLogin())
+            .cpf(user.getCpf())
+            .themePreference(user.getThemePreference())
             .build();
     }
 
@@ -25,6 +23,7 @@ public class UserMapper {
         .fullname(userForCreateDTO.fullname())
         .email(userForCreateDTO.email())
         .cpf(userForCreateDTO.cpf())
+        .themePreference(userForCreateDTO.theme())
         .passwordHash(passwordHash)
         .build();
     }

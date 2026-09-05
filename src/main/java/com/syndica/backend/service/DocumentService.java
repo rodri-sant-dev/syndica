@@ -1,6 +1,7 @@
 package com.syndica.backend.service;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -19,7 +20,8 @@ import com.syndica.backend.domain.models.Document;
 import com.syndica.backend.domain.repositories.DocumentRepository;
 
 import jakarta.transaction.Transactional;
-
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 @Service
 public class DocumentService {
@@ -81,26 +83,20 @@ public class DocumentService {
         );
 
         documentLocalService.delete(document.getBucketKey());
-
-
     }
 
-    // @Transactional
-    // public DocumentDownload getDocument(UUID uuid){
-    //     Document document = documentRepository
-    //         .findById(uuid)
-    //         .orElseThrow(NotFoundException::new);
+    @Transactional
+    public DocumentDownload getDocument(Document document){
+       
+        ResponseInputStream<GetObjectResponse> content = documentStorageService.getObject(document.getBucketKey());
 
-    //     ResponseInputStream<GetObjectResponse> content =
-    //         documentStorageService.getObject(document.getBucketKey());
-
-    //     return new DocumentDownload(
-    //         content,
-    //         document.getContentType(),
-    //         document.getOriginalFilename(),
-    //         content.response().contentLength()
-    //     );
-    // }
+        return new DocumentDownload(
+            content,
+            document.getContentType(),
+            document.getOriginalFilename(),
+            content.response().contentLength()
+        );
+    }
 
     
     public ResponseEntity<InputStreamResource> createDocumentResponse(
@@ -117,6 +113,5 @@ public class DocumentService {
             )
             .body(new InputStreamResource(document.content()));
     }
-    
 
 }

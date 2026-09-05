@@ -79,6 +79,8 @@ public class UserService {
                 )
             )
         );
+        user.setAvatarImage(document);
+        userRepository.save(user);
 
         userOutboxRepository.save(
             UserOutbox

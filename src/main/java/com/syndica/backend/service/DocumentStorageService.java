@@ -21,7 +21,9 @@ public class DocumentStorageService {
     @Value("${storage.bucket-name}")
     private String bucketName;
 
-    public DocumentStorageService(S3Client s3Client) {
+    public DocumentStorageService(
+        S3Client s3Client
+    ) {
         this.s3Client = s3Client;
     }
 
@@ -44,4 +46,5 @@ public class DocumentStorageService {
                 .build()
         );
     }
+
 }

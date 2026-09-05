@@ -41,9 +41,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/token/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/users/**").hasAnyRole( "SINDICO")
-                .requestMatchers("/user/**").permitAll()
+                .requestMatchers("/user/avatar-image/**").permitAll()
+                .requestMatchers("/user/**").authenticated()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
